@@ -28,8 +28,8 @@ HEADERS = {
 SIGN_DATA = {
     '_client_type': '2',
     '_client_version': '9.7.8.0',
-    '_phone_imei': '000000000000000',
-    'model': 'MI+5',
+    '_phone_imei': '865078043536077',
+    'model': 'MI+9',
     "net_type": "1",
 }
 
@@ -76,11 +76,11 @@ def get_favorite(bduss):
         '_client_type': '2',
         '_client_id': 'wappc_1534235498291_488',
         '_client_version': '9.7.8.0',
-        '_phone_imei': '000000000000000',
+        '_phone_imei': '865078043536077',
         'from': '1008621y',
         'page_no': '1',
         'page_size': '200',
-        'model': 'MI+5',
+        'model': 'MI+9',
         'net_type': '1',
         'timestamp': str(int(time.time())),
         'vcode_tag': '11',
@@ -107,11 +107,11 @@ def get_favorite(bduss):
             '_client_type': '2',
             '_client_id': 'wappc_1534235498291_488',
             '_client_version': '9.7.8.0',
-            '_phone_imei': '000000000000000',
+            '_phone_imei': '865078043536077',
             'from': '1008621y',
             'page_no': str(i),
             'page_size': '200',
-            'model': 'MI+5',
+            'model': 'MI+9',
             'net_type': '1',
             'timestamp': str(int(time.time())),
             'vcode_tag': '11',
@@ -166,7 +166,6 @@ def encodeData(data):
 
 def client_sign(bduss, tbs, fid, kw):
     # 客户端签到
-    logger.info("开始签到贴吧：" + kw)
     data = copy.copy(SIGN_DATA)
     data.update({BDUSS: bduss, FID: fid, KW: kw, TBS: tbs, TIMESTAMP: str(int(time.time()))})
     data = encodeData(data)
@@ -220,10 +219,28 @@ def main():
         logger.info("开始签到第" + str(n) + "个用户" + i)
         tbs = get_tbs(i)
         favorites = get_favorite(i)
+        cnt1 = 0
+        cnt2 = 0
+        cnt3 = 0
+        cnt4 = 0
         for j in favorites:
             time.sleep(random.randint(1,5))
-            client_sign(i, tbs, j["id"], j["name"])
+            ret = client_sign(i, tbs, j["id"], j["name"])
+            code = ret['error_code']
+            # 160002: 亲，你之前已经签过了
+            # 340006： 贴吧目录出问题啦，请到贴吧签到吧反馈
+            # 0: 正常签到
+            if code == '0':
+                cnt1 = cnt1 + 1
+            elif code == '160002':
+                cnt2 = cnt2 + 1
+            elif code == '340006':
+                cnt3 = cnt3 + 1
+            else:
+                logger.info(j["name"] + ":" + ret['error_msg'])
+                cnt4 = cnt4 + 1
         logger.info("完成第" + str(n) + "个用户签到")
+        logger.info(f"本次完成{cnt1}个吧的签到，{cnt2}个吧已签到，{cnt3}个吧被封禁，{cnt4}个吧签到出错")
   #  send_email(favorites)
   #  取消发送签到通知邮件
   #  不需要发送邮件
