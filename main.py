@@ -215,6 +215,7 @@ def main():
         logger.error("未配置BDUSS")
         return
     b = ENV['BDUSS'].split('#')
+    cnt4 = 0
     for n, i in enumerate(b):
         logger.info("开始签到第" + str(n) + "个用户" + i)
         tbs = get_tbs(i)
@@ -245,6 +246,8 @@ def main():
   #  取消发送签到通知邮件
   #  不需要发送邮件
     logger.info("所有用户签到结束")
+    if cnt4 != 0:
+        exit(1)
 
 
 if __name__ == '__main__':
